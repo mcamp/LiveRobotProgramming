@@ -49,11 +49,7 @@ LRPParser class >> clearCompiledParser [
 
 { #category : #compiler }
 LRPParser class >> compiledParser [
-	comp ifNil: [ | options |
-		options := PPCCompilationOptions new.
-		options parserName: #LRPCompiledParser.
-		options allowProperties: true.
-		comp := self new compileWithOptions: options].
+	comp ifNil: [ comp := self new ].
 	^comp
 ]
 

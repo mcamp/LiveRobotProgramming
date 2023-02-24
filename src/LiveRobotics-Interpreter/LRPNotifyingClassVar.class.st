@@ -3,7 +3,7 @@ I am a class variable slot that notifies on write. My defining class needs to ha
 "
 Class {
 	#name : #LRPNotifyingClassVar,
-	#superclass : #LiteralVariable,
+	#superclass : #ClassVariable,
 	#category : #'LiveRobotics-Interpreter'
 }
 

@@ -57,8 +57,8 @@ LRPCodeGenerator class >> generateNamedClass: aName withCode: anArray [
 	vars := self makeVarArrayFor:(anArray select: [ :stat| stat class = LRPVariable])
 					inClass: Object. 
 	
-	vars add: #lrp_observers_collection => LiteralVariable.
-	vars add: #robot => LiteralVariable.
+	vars add: #lrp_observers_collection => ClassVariable.
+	vars add: #robot => ClassVariable.
 	
 	SystemAnnouncer uniqueInstance suspendAllWhile: [
 			generated := Object subclass: classname asSymbol
