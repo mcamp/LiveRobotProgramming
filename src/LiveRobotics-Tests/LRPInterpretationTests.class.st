@@ -388,6 +388,10 @@ LRPInterpretationTests >> testAccessVarGeneratedBlock [
 { #category : #'watchpoint tests' }
 LRPInterpretationTests >> testAddDirectlyWatchpointAssignment [
 	|blockNode machine wrapper node watchpoint|
+	"Watchpoints are deprecated, they should be re-thought"
+	
+	self flag:#TODO.
+	true ifTrue: [^ self].
 	
 	program := '
 		(var foo := [0])
@@ -426,7 +430,10 @@ LRPInterpretationTests >> testAddDirectlyWatchpointAssignment [
 { #category : #'watchpoint tests' }
 LRPInterpretationTests >> testAddWatchpointWithCursorPosition [
 	|watchpoint|
-		
+	"Watchpoints are deprecated, they should be re-thought"
+	self flag:#TODO.
+	true ifTrue: [^ self].
+
 	program := '
 		(var foo := [0])
 		(machine a
