@@ -96,6 +96,7 @@ LRPMachine >> initOnState: aStateName scope: aLRPScope interpreter: anInterprete
 	"this is NOT run on top level machine spawn"
 
 	"a bit of optimisation"
+	
 	self variables size = 0 ifFalse: [
 		self allVariables do: [ :aVar | anInterpreter interpretVariable: aVar withScope: self scope andVariableCompare: self compareVariables].
 		self initializeVariables].

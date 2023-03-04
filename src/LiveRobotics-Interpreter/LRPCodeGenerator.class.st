@@ -4,6 +4,9 @@ I am responsible for managing the code of the class hierarchy that is the scope 
 Class {
 	#name : #LRPCodeGenerator,
 	#superclass : #Object,
+	#classInstVars : [
+		'ret'
+	],
 	#category : #'LiveRobotics-Interpreter'
 }
 
@@ -24,7 +27,9 @@ LRPCodeGenerator class >> generateClassFor: aMachine withSuper: aClass [
 		str nextPutAll: '_'.
 		str nextPutAll: Date today ddmmyyyy asString.
 		str nextPutAll: '_'.
-		str nextPutAll: Time now asMilliSeconds asString].
+		str nextPutAll: Time now asMilliSeconds asString.
+		str nextPutAll: '_'.
+		str nextPutAll: (SharedRandom globalGenerator next * 1000) asInteger asString].
 	classname := classname copyReplaceAll: '/' with: '_'.
 	
 	vars := self makeVarArrayFor: aMachine variables inClass: aClass. 
@@ -51,7 +56,9 @@ LRPCodeGenerator class >> generateNamedClass: aName withCode: anArray [
 		str nextPutAll: '_'.
 		str nextPutAll: Date today ddmmyyyy asString.
 		str nextPutAll: '_'.
-		str nextPutAll: Time now asMilliSeconds asString].
+		str nextPutAll: Time now asMilliSeconds asString.
+		str nextPutAll: '_'.
+		str nextPutAll: (SharedRandom globalGenerator next * 1000) asInteger asString].
 	classname := classname copyReplaceAll: '/' with: '_'.
 	
 	vars := self makeVarArrayFor:(anArray select: [ :stat| stat class = LRPVariable])
@@ -65,6 +72,7 @@ LRPCodeGenerator class >> generateNamedClass: aName withCode: anArray [
 						slots: { }
 						classVariables: vars
 						package: 'LiveRobotics-InterpreterGenerated'].
+
 	generated class compileSilently:
 	'observers
 		lrp_observers_collection ifNil:[lrp_observers_collection := OrderedCollection new.].
@@ -79,6 +87,7 @@ LRPCodeGenerator class >> generateNamedClass: aName withCode: anArray [
 LRPCodeGenerator class >> makeVarArrayFor: lrpVariables inClass: aClass [
 	| vars |
 	vars := OrderedCollection new.
+
 	lrpVariables do: [ :mvar | |varname|
 		varname := (mvar name asSymbol).
 		(aClass usesClassVarNamed: varname)
@@ -124,7 +133,9 @@ LRPCodeGenerator >> compileBlock: aBlockNode forScope: aMachineScope [
 		str nextPutAll: 'blockGen/'.
 		str nextPutAll: Date today ddmmyyyy asString.
 		str nextPutAll: '/'.
-		str nextPutAll: Time now asMilliSeconds asString].
+		str nextPutAll: Time now asMilliSeconds asString.
+		str nextPutAll: '/'.
+		str nextPutAll: (SharedRandom globalGenerator next * 1000) asInteger asString].
 	selector := selector copyReplaceAll: '/' with: '_'.
 	
 	"added return value to the block node"
