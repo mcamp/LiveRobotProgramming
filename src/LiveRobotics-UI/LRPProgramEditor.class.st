@@ -130,7 +130,7 @@ LRPProgramEditor >> connectPresenters [
 	"self setupTopButtons.
 	self setupBottomButtons."
 	
-	"text widget whenTextChanged: [self processTextUpdate]."
+	text whenSubmitDo: [:newProgram| self processTextUpdate: newProgram ].
 ]
 
 { #category : #layout }
@@ -333,8 +333,13 @@ LRPProgramEditor >> newStartText [
 { #category : #actions }
 LRPProgramEditor >> parseAndStyle: aText [
 	|parsedProgram |
+	self flag:#TODO.
+	parsedProgram := self parser parse: aText.
+	^parsedProgram isPetitFailure 
+		ifTrue:[nil]
+		ifFalse:[parsedProgram]
 	
-	self parser propertyAt: #LRPPF put: false.
+	"self parser propertyAt: #LRPPF put: false.
 	parsedProgram := self parser parse: aText.
 
 	parsedProgram isPetitFailure ifTrue:[
@@ -349,7 +354,7 @@ LRPProgramEditor >> parseAndStyle: aText [
 
 	^(self parser propertyAt: #LRPPF)
 						ifTrue:[nil]
-						ifFalse:[parsedProgram].
+						ifFalse:[parsedProgram]."
 	
 
 ]
@@ -370,13 +375,16 @@ LRPProgramEditor >> pause: anObject [
 ]
 
 { #category : #actions }
-LRPProgramEditor >> processTextUpdate [
+LRPProgramEditor >> processTextUpdate: aProgram [
 	|res |
+	self flag:#TODO. "remove space, tab or newline optimization"
+	
 	"Did the currently displayed text parse?"
-	res := self parseAndStyle: text widget text.
+	res := self parseAndStyle: aProgram.
 	res ifNotNil: [ |code|
 		"If a space, tab or newline was entered, no need to recompile. metaprogramming FTW!"
-		code := World activeHand instVarNamed: #lastKeyScanCode.
+		"code := World activeHand instVarNamed: #lastKeyScanCode."
+		code := 1.
 		({ 48 . 49 . 36 } includes: code) ifFalse: [
 				self lastmodel: res.
 				queue newProgram: res. "will call updateWith: when processed"]]

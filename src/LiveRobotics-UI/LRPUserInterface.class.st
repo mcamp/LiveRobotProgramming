@@ -18,21 +18,18 @@ Class {
 { #category : #specs }
 LRPUserInterface class >> menuCommandOn: aBuilder [
 	<worldMenu>
-	self flag:#TODO.
 	(aBuilder item: #'Live Robot Programming')
 		order: 0.1; 
 		icon: (Smalltalk ui icons iconNamed: #windowIcon);
 		label: 'Live Robot Programming';
-		action: [ self new open ]
-		"action:[ LRPInterpreter startWithUI: self]"
+		action:[ LRPInterpreter startWithUI: self]
 ]
 
 { #category : #opening }
-LRPUserInterface class >> oldOpen [
+LRPUserInterface class >> open [
 	|inst|
-	self flag:#TODO.
 	inst := self new.
-	inst openWithSpec.
+	inst open.
 	^inst
 ]
 
@@ -141,7 +138,7 @@ LRPUserInterface >> initializeWindow: aWindowPresenter [
 { #category : #api }
 LRPUserInterface >> interpreter: anInterpreter [
 	codePane interpreter: anInterpreter.
-	visPane interpreter: anInterpreter.
+	"visPane interpreter: anInterpreter."
 ]
 
 { #category : #api }
