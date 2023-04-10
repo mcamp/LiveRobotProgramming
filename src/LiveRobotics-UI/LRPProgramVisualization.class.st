@@ -10,7 +10,7 @@ The Instance Variables contain the widgets, except for:
 "
 Class {
 	#name : #LRPProgramVisualization,
-	#superclass : #ComposableModel,
+	#superclass : #SpPresenter,
 	#instVars : [
 		'treelabel',
 		'treeview',

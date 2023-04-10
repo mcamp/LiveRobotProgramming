@@ -7,7 +7,7 @@ Instance Variables
 "
 Class {
 	#name : #LRPUserInterface,
-	#superclass : #ComposableModel,
+	#superclass : #SpPresenter,
 	#instVars : [
 		'codePane',
 		'visPane'
@@ -16,31 +16,21 @@ Class {
 }
 
 { #category : #specs }
-LRPUserInterface class >> defaultSpec [
-	<spec: #default>
-	^ SpecLayout composed 
-		"one top-level column with one top-level row"
-		newColumn: [:tcol|
-			tcol newRow: [:trow|
-				trow add: #codePane width: 550;
-					"addSplitter;"
-					add: #visPane ]].
-]
-
-{ #category : #specs }
 LRPUserInterface class >> menuCommandOn: aBuilder [
 	<worldMenu>
-
+	self flag:#TODO.
 	(aBuilder item: #'Live Robot Programming')
 		order: 0.1; 
 		icon: (Smalltalk ui icons iconNamed: #windowIcon);
 		label: 'Live Robot Programming';
-		action:[ LRPInterpreter startWithUI: self]
+		action: [ self new open ]
+		"action:[ LRPInterpreter startWithUI: self]"
 ]
 
 { #category : #opening }
-LRPUserInterface class >> open [
+LRPUserInterface class >> oldOpen [
 	|inst|
+	self flag:#TODO.
 	inst := self new.
 	inst openWithSpec.
 	^inst
@@ -77,6 +67,30 @@ LRPUserInterface >> codePane: anObject [
 	codePane := anObject
 ]
 
+{ #category : #'initialize-release' }
+LRPUserInterface >> connectPresenters [
+	self flag:#TODO.
+	"codePane codeChangeBlock: [ :model |
+		""due to bad(?) error handling of rubric""	
+		[visPane lastmodel: model.
+		visPane updateVis.] on: Error do: [ :error | error debug.]
+	].
+
+	self whenWindowChanged: [  
+		self window whenClosedDo: [ self actionOnClose ]
+	]."
+]
+
+{ #category : #layout }
+LRPUserInterface >> defaultLayout [
+
+	^ SpPanedLayout newLeftToRight 
+		add:codePane;
+		add:visPane;
+		positionOfSlider: 550;
+		yourself
+]
+
 { #category : #accessing }
 LRPUserInterface >> extent [
 	^1000@600
@@ -97,33 +111,31 @@ LRPUserInterface >> highlightTransition: aLRPTransition [
 LRPUserInterface >> initialize [
 	| errorHandler win |
 	super initialize.
-	errorHandler := LRPErrorHandlerUI new.
+	self flag:#TODO.
+"	errorHandler := LRPErrorHandlerUI new.
 	errorHandler styler: self codePane styler.
 	win := errorHandler openWithSpec.
 	win widget widget deleteCloseBox.
-	LRPErrorHandler instance: errorHandler.
+	LRPErrorHandler instance: errorHandler."
 ]
 
 { #category : #'initialize-release' }
-LRPUserInterface >> initializePresenter [
+LRPUserInterface >> initializePresenters [
+	self flag:#TODO.
 	
-	codePane codeChangeBlock: [ :model |
-		"due to bad(?) error handling of rubric"	
-		[visPane lastmodel: model.
-		visPane updateVis.] on: Error do: [ :error | error debug.]
-	].
-
-	self whenWindowChanged: [  
-		self window whenClosedDo: [ self actionOnClose ]
-	].
+	
+	visPane := self newNullPresenter.
+	codePane := self instantiate: LRPProgramEditor.
+	"visPane := self instantiate: LRPProgramVisualization.
+	visPane code: codePane."
 ]
 
-{ #category : #'initialize-release' }
-LRPUserInterface >> initializeWidgets [
+{ #category : #initialization }
+LRPUserInterface >> initializeWindow: aWindowPresenter [
 
-	codePane := self instantiate: LRPProgramEditor.
-	visPane := self instantiate: LRPProgramVisualization.
-	visPane code: codePane.
+	aWindowPresenter
+		title: 'Live Robot Programming';
+		initialExtent: self extent.
 ]
 
 { #category : #api }

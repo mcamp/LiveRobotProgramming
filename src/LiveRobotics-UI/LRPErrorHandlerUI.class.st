@@ -3,7 +3,7 @@ A LRPErrorHandlerUI is a small UI to show LRP errors in a list, with the ability
 "
 Class {
 	#name : #LRPErrorHandlerUI,
-	#superclass : #ComposableModel,
+	#superclass : #SpPresenter,
 	#instVars : [
 		'errorList',
 		'cleanButton',

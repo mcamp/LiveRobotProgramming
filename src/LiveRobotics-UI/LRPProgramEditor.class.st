@@ -10,7 +10,7 @@ The Instance Variables contain the widgets, except for
 "
 Class {
 	#name : #LRPProgramEditor,
-	#superclass : #ComposableModel,
+	#superclass : #SpPresenter,
 	#instVars : [
 		'menu',
 		'text',
@@ -124,6 +124,34 @@ LRPProgramEditor >> codeChangeBlock: anObject [
 	codeChangeBlock := anObject
 ]
 
+{ #category : #'initialize-release' }
+LRPProgramEditor >> connectPresenters [
+	self flag:#TODO.
+	"self setupTopButtons.
+	self setupBottomButtons."
+	
+	"text widget whenTextChanged: [self processTextUpdate]."
+]
+
+{ #category : #layout }
+LRPProgramEditor >> defaultLayout [
+	self flag: #TODO.
+	^ self newBoxLayoutTopToBottom 
+		"add: menu height: (self toolbarHeight);"
+		add: text;
+		add: (self newBoxLayoutLeftToRight 
+				add: botlabel;
+				add: freq;
+				add: freqlabel;
+				add: pause;
+				add: step;
+				add: reset;
+				add: inspBot 
+				yourself) expand: false;
+		yourself
+
+]
+
 { #category : #accessing }
 LRPProgramEditor >> filename [
 	^ filename
@@ -173,16 +201,7 @@ LRPProgramEditor >> initialize [
 ]
 
 { #category : #'initialize-release' }
-LRPProgramEditor >> initializePresenter [
-
-	self setupTopButtons.
-	self setupBottomButtons.
-	
-	text widget whenTextChanged: [self processTextUpdate].
-]
-
-{ #category : #'initialize-release' }
-LRPProgramEditor >> initializeWidgets [
+LRPProgramEditor >> initializePresenters [
 	
 	text := self lrpTextArea.
 	
@@ -263,8 +282,9 @@ LRPProgramEditor >> loadFile [
 { #category : #'initialize-release' }
 LRPProgramEditor >> lrpTextArea [
 	| morph |
-
-	morph := RubScrolledTextMorph new
+	self flag:#TODO.
+	^ self newText
+	"morph := RubScrolledTextMorph new
 				vResizing: #spaceFill; 
       			hResizing: #spaceFill;
 				beWrapped;
@@ -280,7 +300,7 @@ LRPProgramEditor >> lrpTextArea [
 		on: $l control do: [self loadFile ].
 	
 	^ morph asSpecAdapter 
-
+"
 ]
 
 { #category : #accessing }
@@ -456,8 +476,8 @@ LRPProgramEditor >> setupBottomButtons [
 
 { #category : #'initialize-release' }
 LRPProgramEditor >> setupMenuFor: anActionBlock [
-
-	menu := MenuModel new.
+	self flag:#TODO.
+	"menu := MenuModel new.
 	menu applyTo: self.
 	menu addGroup: [ :group |
 			group addItem: [ :item |
@@ -509,7 +529,7 @@ LRPProgramEditor >> setupMenuFor: anActionBlock [
 					icon: Smalltalk ui icons exceptionIcon;
 					action: [ anActionBlock value: '(event ?e [?])' ]].						
 				].
-	menu addGroup: [ :group | ].
+	menu addGroup: [ :group | ]."
 ]
 
 { #category : #'initialize-release' }
