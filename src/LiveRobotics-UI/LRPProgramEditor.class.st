@@ -378,7 +378,7 @@ LRPProgramEditor >> pause: anObject [
 LRPProgramEditor >> processTextUpdate: aProgram [
 	|res |
 	self flag:#TODO. "remove space, tab or newline optimization"
-	
+
 	"Did the currently displayed text parse?"
 	res := self parseAndStyle: aProgram.
 	res ifNotNil: [ |code|

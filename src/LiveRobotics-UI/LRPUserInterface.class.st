@@ -51,7 +51,7 @@ LRPUserInterface >> actionOnClose [
 
 	LRPAbstractBridge cleanUp.
 	self codePane cleanUp.
-	LRPErrorHandler instance delete.
+	"LRPErrorHandler instance delete."
 ]
 
 { #category : #accessing }
@@ -67,15 +67,15 @@ LRPUserInterface >> codePane: anObject [
 { #category : #'initialize-release' }
 LRPUserInterface >> connectPresenters [
 	self flag:#TODO.
-	"codePane codeChangeBlock: [ :model |
-		""due to bad(?) error handling of rubric""	
+	codePane codeChangeBlock: [ :model |
+		"due to bad(?) error handling of rubric"
 		[visPane lastmodel: model.
 		visPane updateVis.] on: Error do: [ :error | error debug.]
 	].
 
 	self whenWindowChanged: [  
 		self window whenClosedDo: [ self actionOnClose ]
-	]."
+	].
 ]
 
 { #category : #layout }
@@ -118,13 +118,10 @@ LRPUserInterface >> initialize [
 
 { #category : #'initialize-release' }
 LRPUserInterface >> initializePresenters [
-	self flag:#TODO.
 	
-	
-	visPane := self newNullPresenter.
 	codePane := self instantiate: LRPProgramEditor.
-	"visPane := self instantiate: LRPProgramVisualization.
-	visPane code: codePane."
+	visPane := self instantiate: LRPProgramVisualization.
+	visPane code: codePane.
 ]
 
 { #category : #initialization }
@@ -138,7 +135,7 @@ LRPUserInterface >> initializeWindow: aWindowPresenter [
 { #category : #api }
 LRPUserInterface >> interpreter: anInterpreter [
 	codePane interpreter: anInterpreter.
-	"visPane interpreter: anInterpreter."
+	visPane interpreter: anInterpreter.
 ]
 
 { #category : #api }

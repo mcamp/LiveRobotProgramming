@@ -31,8 +31,8 @@ Class {
 	#category : #'LiveRobotics-UI'
 }
 
-{ #category : #specs }
-LRPProgramVisualization class >> defaultSpec [
+{ #category : #layout }
+LRPProgramVisualization class >> defaultLayout [
 	<spec: #default>
 	^ SpecLayout composed 
 		newRow: [:trow|
@@ -142,6 +142,16 @@ LRPProgramVisualization >> allMachines [
 ]
 
 { #category : #initialization }
+LRPProgramVisualization >> buildMachineOnCanvas: aCanvas [
+	|machine|
+	machine := (self machineForName: self selection).
+	machine isNil ifFalse: [
+		self visualizeMachine: machine onView: aCanvas view.
+		self addLayoutAutoPause]
+	
+]
+
+{ #category : #initialization }
 LRPProgramVisualization >> buildMachineOnView: aView andCanvas: aCanvas [
 	|machine|
 	machine := (self machineForName: self selection).
@@ -149,6 +159,33 @@ LRPProgramVisualization >> buildMachineOnView: aView andCanvas: aCanvas [
 		self visualizeMachine: machine onView: aView.
 		self addLayoutAutoPause]
 	
+]
+
+{ #category : #'tree visualization' }
+LRPProgramVisualization >> buildMachineShapesFor: machines [
+	| maels |
+	self flag: #TODO.
+	maels := RSGroup new.
+	
+	machines do: [:machine | | shape bcolor icolor|
+			bcolor := (machine fullName = self selection)
+							ifTrue: [ Color black ]
+							ifFalse: [ Color white].
+			icolor := machine currentState isNil
+							ifTrue: [ Color lightGray ]
+							ifFalse: [ Color black ].
+			shape := RSComposite new.
+			shape add: (RSLabel new text: machine name; color: (Color black)).
+			shape add: ((RSBox new borderColor: bcolor)" borderWidth: 3;" color: icolor; size: 15).
+			RSVerticalLineLayout new alignCenter; gapSize: 0; on: shape shapes.
+			maels add: (shape model: machine).
+		].
+
+	"maels do: [ :mach |
+		mach when: TRMouseClick do: [ :click | self switchVizTo: mach model fullName.]]."
+	
+	maels @ RSDraggable.
+	 ^maels
 ]
 
 { #category : #'tree visualization' }
@@ -208,6 +245,32 @@ LRPProgramVisualization >> buildTransition: trans withElements: elems forView: v
 ]
 
 { #category : #'tree visualization' }
+LRPProgramVisualization >> buildTreeOnCanvas: aCanvas [
+	| machines maels |
+	self flag:#TODO.
+
+	machines := self allMachines.
+	"(self selection isNil and: [machines isNotEmpty ])
+		ifTrue: [	self selection: machines first fullName. machineview refresh.]."
+
+	maels := self buildMachineShapesFor: machines.
+	aCanvas addAll: maels.
+	
+	RSLineBuilder line 
+			canvas: aCanvas;
+			objects: machines;
+			shape: (RSLine new
+				color: (Color black);
+				width: 2;
+				attachPoint: RSHorizontalAttachPoint new);
+			connectFrom: #containerMachine to: #yourself.
+	
+	RSTreeLayout new verticalGap: 40; horizontalGap: 20;	 on: maels.
+	"aView @ RTDraggableView."
+	"(RSGroup withAll: aCanvas elements) translateTo: 0 @ 0"
+]
+
+{ #category : #'tree visualization' }
 LRPProgramVisualization >> buildTreeOnView: aView andCanvas: aCanvas [
 	| machines maels |
 
@@ -240,6 +303,67 @@ LRPProgramVisualization >> code [
 { #category : #accessing }
 LRPProgramVisualization >> code: anObject [
 	code := anObject
+]
+
+{ #category : #initialization }
+LRPProgramVisualization >> connectPresenters [
+	"self halt.
+	varview whenSelectionChanged: [|item|
+		item := varview selectedItem.
+		item ifNotNil: [ 
+			((item key wasInitialized) or: [ item key shouldNotInitialize  ])
+				ifTrue: [ varvalue text: item value. varvalue enable]
+				ifFalse: [ varvalue text: ''. varvalue disable ]]
+		].
+	"
+"	varvalue acceptBlock: [:text| | theitem |
+		theitem := varview selectedItem.
+		theitem ifNotNil: [|val scope|"
+			"Treat this as a special case, otherwise can never set a variable to nil."
+"			text = 'nil'
+				ifTrue: [ val := nil ]
+				ifFalse: [
+					val := [OpalCompiler evaluate: text] ifError: [ text ]."
+					"Returns nil on syntax error"
+"					val ifNil: [ val := text ]	].					
+			scope := (self machineForName: self selection) scope.
+			scope setVariable: theitem key name withValue: val]]."
+"
+	varinsp action: [|machine|
+		machine := self machineForName: self selection.
+		machine ifNotNil: [machine scope inspect.]].
+	
+	layoutbutton activationAction: [ self vizstate freeze ].
+	layoutbutton deactivationAction: [ self vizstate thaw ]."
+	
+]
+
+{ #category : #layout }
+LRPProgramVisualization >> defaultLayout [
+
+	^ self newBoxLayoutLeftToRight 
+			"column of the tree view and variable editor"
+		add: (self newBoxLayoutTopToBottom 
+					add: treelabel expand: false; 
+					add: treeview;
+					"addSplitter;"
+					add: (self newBoxLayoutLeftToRight 
+								add: varlabel; 
+								add: varinsp;
+								yourself) expand: false;
+					add: varview;
+					add: varvalue expand: false;
+					yourself) width: 150;
+			"addSplitter;"
+			"column of the machine visualization"
+		add:(self newBoxLayoutTopToBottom 
+					add: (self newBoxLayoutLeftToRight 
+								add: layoutbutton;
+								add: followbutton;
+								yourself) expand: false;
+					add: machineview;
+					yourself);
+		yourself
 ]
 
 { #category : #visualization }
@@ -352,64 +476,31 @@ LRPProgramVisualization >> highlightTransition: aLRPTransition [
 ]
 
 { #category : #initialization }
-LRPProgramVisualization >> initializePresenter [
-
-	varview whenSelectionChanged: [|item|
-		item := varview selectedItem.
-		item ifNotNil: [ 
-			((item key wasInitialized) or: [ item key shouldNotInitialize  ])
-				ifTrue: [ varvalue text: item value. varvalue enable]
-				ifFalse: [ varvalue text: ''. varvalue disable ]]
-		].
-	
-	varvalue acceptBlock: [:text| | theitem |
-		theitem := varview selectedItem.
-		theitem ifNotNil: [|val scope|
-			"Treat this as a special case, otherwise can never set a variable to nil."
-			text = 'nil'
-				ifTrue: [ val := nil ]
-				ifFalse: [
-					val := [OpalCompiler evaluate: text] ifError: [ text ].
-					"Returns nil on syntax error"
-					val ifNil: [ val := text ]	].					
-			scope := (self machineForName: self selection) scope.
-			scope setVariable: theitem key name withValue: val]].
-
-	varinsp action: [|machine|
-		machine := self machineForName: self selection.
-		machine ifNotNil: [machine scope inspect.]].
-	
-	layoutbutton activationAction: [ self vizstate freeze ].
-	layoutbutton deactivationAction: [ self vizstate thaw ].
-	
-]
-
-{ #category : #initialization }
 LRPProgramVisualization >> initializeWidgets [
-
+	self flag:#TODO.
 	treelabel := self newLabel.
-	treeview := self instantiate: RoassalModel.
+	treeview := self instantiate: SpRoassalPresenter.
 	varlabel := self newLabel.
-	varview := self newMultiColumnList.
+	varview := self newNullPresenter. "multicolumn"
 	varvalue := self newTextInput.
 	varinsp := self newButton.
 	layoutbutton := self newCheckBox.
 	followbutton := self newCheckBox.
-	machineview := self instantiate: RoassalModel.
+	machineview := self newNullPresenter. "self instantiate: SpRoassalPresenter."
 
 	treelabel label: '      Machines:'.
-	treeview script: [:view :canvas| self buildTreeOnView: view andCanvas: canvas ].
+	treeview script: [:canvas| self buildTreeOnCanvas: canvas ].
 	varlabel label: '   Variables '.
-	varview displayBlock: self varViewBlock.
+	"varview displayBlock: self varViewBlock."
 
-	varvalue isCodeCompletionAllowed: false; autoAccept: false; acceptOnCR: true.
-	varvalue ghostText: 'Select initialized var'.
+	"varvalue isCodeCompletionAllowed: false; autoAccept: false; acceptOnCR: true."
+	"varvalue ghostText: 'Select initialized var'."
 	varinsp enabled: true; label: 'Inspect'.
 	
 	layoutbutton label: 'Freeze Movement'.
 	blockid := 0.
 	followbutton label: 'Follow Highlight'.
-	machineview script: [:view :canvas| self buildMachineOnView: view andCanvas: canvas.].
+	"machineview script: [:view :canvas| self buildMachineOnView: view andCanvas: canvas.]."
 	
 
 ]
@@ -641,7 +732,7 @@ LRPProgramVisualization >> updateVis [
 	"Not showing a machine right now"	
 	self selection isNil ifTrue: [
 		treeview refresh.
-		self populateVariables.
+		"self populateVariables."
 		^self].
 	
 	removed := interpreter removedMachines.
@@ -655,13 +746,13 @@ LRPProgramVisualization >> updateVis [
 		self populateVariables.
 		^self].
 	
-	self updateCurrentMachineVis.
+	"self updateCurrentMachineVis."
 	
 	"added := interpreter compareAST addedMachines."
 	"DOES NOT TAKE INTO ACCOUNT NESTED MACHINES
 	((added isEmpty) & (removed isEmpty)) ifFalse: [treeview refresh]."
 	treeview refresh.
-	self populateVariables.
+	"self populateVariables."
 ]
 
 { #category : #api }
@@ -737,21 +828,21 @@ LRPProgramVisualization >> varview: anObject [
 
 { #category : #visualization }
 LRPProgramVisualization >> visualizeMachine: aMachine onView: aView [
-	| elements layout stepping |
-
+	| elements roassalLayout stepping |
+	self flag: #TODO.
 	self vizstate newView: aView.
 	
 	elements := self addNodesOf: aMachine.
 	self vizstate setPositionsFor: self selection.	
 	
-	layout := RTForceBasedLayout new
+	roassalLayout := RSForceBasedLayout new
 					charge: -450; length: 100; 
 					doNotUseProgressBar; applyOn: elements; yourself.
-	layout initialLayout: RTNoLayout new.	
-	stepping := RTSpringLayoutStepping new 
-						layoutWithoutPreparing: layout; inView: aView;
+	roassalLayout initialLayout: RSNoLayout new.	
+	"stepping := RSSpringLayoutStepping new 
+						layoutWithoutPreparing: roassalLayout; inView: aView;
 						afterBlock: [ aView canvas camera focusOnCenter].
-	self vizstate layout: stepping.
+	self vizstate layout: stepping."
 	
 	self addTransitionsOf: aMachine withElements: elements.
 ]
